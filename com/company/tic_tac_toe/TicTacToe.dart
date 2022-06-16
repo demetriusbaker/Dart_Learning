@@ -2,26 +2,28 @@ import 'dart:math';
 import 'dart:io';
 
 class TicTacToe {
-  bool _strategicMode = false;
+  bool _twoPlayers = false;
   List _fields = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
   var _space = ' ' * 50;
   final List OX = ["O", "X"];
-  var _user, _computer;
+  var _user, _computer, _secondUser;
   int _moves = 9;
+  var userWin;
 
-  TicTacToe({bool strategicMode = false}) {
-    _strategicMode = strategicMode;
+  TicTacToe({bool twoPlayers = false}) {
+    _twoPlayers = twoPlayers;
   }
 
-  void chooseSign() {
+  chooseSign() {
     var random = Random().nextInt(2);
     _user = OX[random];
     _computer = _user == OX[1] ? OX[0] : OX[1];
+    _secondUser = _computer;
 
-    print("You're $_user!");
+    if (!_twoPlayers) print("You're $_user!");
   }
 
-  void printField() {
+  printField() {
     print("""
     $_space*---------*---------*---------*
     $_space|         |         |         |
@@ -41,7 +43,11 @@ class TicTacToe {
 
   bool isUserFirst() => _user == OX[1];
 
-  void userMoving() {
+  userMoving([bool isSecondUser = false]) {
+    var user = !isSecondUser ? _user : _secondUser;
+
+    if (_twoPlayers) print("$user moving!");
+
     print("Print not occupied field from 1 to 9");
     int position = -1;
     while (true) {
@@ -53,8 +59,10 @@ class TicTacToe {
         if (position >= 1 && position <= 9) {
           var field = _fields[position - 1];
           if (field != OX[0] && field != OX[1]) {
-            _fields[position - 1] = _user;
-            _moves--;
+            _fillField(() => _fields[position - 1] = user);
+
+            if (_twoPlayers) userWin = user;
+
             break;
           } else
             print("That field was occupied!!!");
@@ -66,20 +74,18 @@ class TicTacToe {
     print("$_space            User moved!");
   }
 
-  void computerMoving() {
+  computerMoving() {
     Set randomNumbers = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     bool isEnd = false;
-    while (true) {
-      if (isEnd) break;
-
+    while (!isEnd) {
       int random = Random().nextInt(randomNumbers.length);
       String field = _fields[random];
 
-      if (field != OX[0] && field != OX[1]) {
-        _fields[random] = _computer;
-        _moves--;
-        isEnd = true;
-      }
+      if (field != OX[0] && field != OX[1])
+        _fillField(() {
+          _fields[random] = _computer;
+          isEnd = true;
+        });
 
       randomNumbers.remove(random);
     }
@@ -87,10 +93,19 @@ class TicTacToe {
     print("$_space            Computer moved!");
   }
 
+  _fillField(void Function() init) {
+    init();
+    _moves--;
+  }
+
   bool willContinueGame(bool isUserMoving) {
     if (_moves >= 5) return true;
 
-    var sign = isUserMoving ? _user : _computer;
+    var sign = isUserMoving
+        ? _user
+        : !_twoPlayers
+            ? _computer
+            : _secondUser;
     var isWin = false;
 
     for (int i = 0; i < 9; i += 3)
@@ -110,10 +125,15 @@ class TicTacToe {
       isWin = true;
 
     if (isWin) {
+      if (_twoPlayers) {
+        print("$sign won!");
+        return false;
+      }
+
       if (sign == _user)
-        print("User win!");
+        print("User won!");
       else
-        print("Computer win!");
+        print("Computer won!");
 
       return false;
     }

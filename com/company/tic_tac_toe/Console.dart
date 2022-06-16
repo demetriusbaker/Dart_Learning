@@ -2,7 +2,7 @@ import 'dart:io';
 import 'TicTacToe.dart';
 
 void startGame(bool flag) {
-  TicTacToe ticTacToe = TicTacToe(strategicMode: flag);
+  TicTacToe ticTacToe = TicTacToe(twoPlayers: flag);
   ticTacToe.chooseSign();
   ticTacToe.printField();
 
@@ -10,6 +10,8 @@ void startGame(bool flag) {
   while (true) {
     if (doesUserMove)
       ticTacToe.userMoving();
+    else if (flag)
+      ticTacToe.userMoving(true);
     else
       ticTacToe.computerMoving();
 
@@ -25,8 +27,8 @@ main() {
   print("Welcome to tic-tac-toe game!");
   while (true) {
     print("Choose next: ");
-    print("1) Play with crazy rival");
-    print("2) Play with strategic rival");
+    print("1) Play alone");
+    print("2) Play two players");
     print("3) Exit");
 
     switch (stdin.readLineSync()) {
