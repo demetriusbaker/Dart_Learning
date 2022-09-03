@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'TicTacToe.dart';
+import 'ticTacToe.dart';
 
 void startGame(bool flag) {
   TicTacToe ticTacToe = TicTacToe(twoPlayers: flag);
